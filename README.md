@@ -1,60 +1,168 @@
-# Template: Python - Minimal
 
-This template leverages the new [Python framework](https://github.com/robocorp/robocorp), the [libraries](https://github.com/robocorp/robocorp/blob/master/docs/README.md#python-libraries) from to same project as well.
+# AI-Agent PDF Extractor
 
-The template provides you with the basic structure of a Python project: logging out of the box and controlling your tasks without fiddling with the base Python stuff. The environment contains the most used libraries, so you do not have to start thinking about those right away. 
+This repository contains a Python-based automation script that processes PDF files by extracting their text content and performing natural language processing tasks, such as summarization or email extraction. The AI processing is powered by the [Ollama](https://ollama.com/) language model, with an option to integrate Azure OpenAI for more advanced or scalable NLP tasks.
 
-👉 Other templates are available as well via our tooling and on our [Portal](https://robocorp.com/portal/tag/template)
+## Table of Contents
 
-## Running
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Examples](#examples)
+- [Limitations](#limitations)
+- [Contributing](#contributing)
+- [License](#license)
 
-#### VS Code
-1. Get [Robocorp Code](https://robocorp.com/docs/developer-tools/visual-studio-code/extension-features) -extension for VS Code.
-1. You'll get an easy-to-use side panel and powerful command-palette commands for running, debugging, code completion, docs, etc.
+## Project Overview
 
-#### Command line
+The **AI-Agent PDF Extractor** allows you to automate the extraction and processing of PDF documents using AI. It is designed to support various operations, such as:
+- Summarizing the content of PDFs.
+- Extracting email addresses from PDFs.
 
-1. [Get RCC](https://github.com/robocorp/rcc?tab=readme-ov-file#getting-started)
-1. Use the command: `rcc run`
+The project integrates with the Ollama language model, and it also provides an option to switch to Azure OpenAI for cases where large models, such as Phi-3, may be too large for your system.
 
-## Results
+## Features
 
-🚀 After running the bot, check out the `log.html` under the `output` -folder.
+- **PDF Text Extraction**: Uses `pdfplumber` to extract text from each page of the PDF.
+- **Summarization**: Summarizes the extracted text using the Ollama model or Azure OpenAI.
+- **Email Extraction**: Extracts email addresses from the text content.
+- **Customizable Processing**: Choose between summarization or email extraction with an easy-to-configure setting.
 
-## Dependencies
+## Requirements
 
-We strongly recommend getting familiar with adding your dependencies in [conda.yaml](conda.yaml) to control your Python dependencies and the whole Python environment for your automation.
+- Python 3.7 or higher
+- `pdfplumber` for PDF processing
+- `requests` for making HTTP requests to the Ollama API
 
-<details>
-  <summary>🙋‍♂️ "Why not just pip install...?"</summary>
+### External Services
 
-Think of [conda.yaml](conda.yaml) as an equivalent of the requirements.txt, but much better. 👩‍💻 With `conda.yaml`, you are not just controlling your PyPI dependencies; you control the complete Python environment, which makes things repeatable and easy.
+- [Ollama](https://ollama.com/) for language model API
+- Optional: [Azure OpenAI API](https://azure.microsoft.com/en-us/services/cognitive-services/openai-service/) for large-scale AI processing
 
-👉 You will probably need to run your code on another machine quite soon, so by using `conda.yaml`:
-- You can avoid `Works on my machine` -cases
-- You do not need to manage Python installations on all the machines
-- You can control exactly which version of Python your automation will run on 
-  - You'll also control the pip version to avoid dep. resolution changes
-- No need for venv, pyenv, ... tooling and knowledge sharing inside your team.
-- Define dependencies in conda.yaml, let our tooling do the heavy lifting.
-- You get all the content of [conda-forge](https://prefix.dev/channels/conda-forge) without any extra tooling
+## Installation
 
-> Dive deeper with [these](https://github.com/robocorp/rcc/blob/master/docs/recipes.md#what-is-in-condayaml) resources.
+1. Clone the repository:
 
-</details>
-<br/>
+   ```bash
+   git clone https://github.com/Morteningemann86/AI-Agent-PDF-Extractor.git
+   cd AI-Agent-PDF-Extractor
+   ```
 
-> The full power of [rpaframework](https://robocorp.com/docs/python/rpa-framework) -libraries is also available on Python as a backup while we implement the new Python libraries.
+2. Create a virtual environment and activate it:
 
-## What now?
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # On Windows use: venv\Scriptsctivate
+   ```
 
-🚀 Now, go get'em
+3. Install the required Python dependencies:
 
-Start writing Python and remember that the AI/LLM's out there are getting really good and creating Python code specifically.
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-👉 Try out [Robocorp ReMark 💬](https://chat.robocorp.com)
+4. Install the Ollama language model (optional):
 
-For more information, do not forget to check out the following:
-- [Robocorp Documentation -site](https://robocorp.com/docs)
-- [Portal for more examples](https://robocorp.com/portal)
-- Follow our main [robocorp -repository](https://github.com/robocorp/robocorp) as it is the main location where we developed the libraries and the framework.
+   ```bash
+   ollama run llama3.2:1b
+   ```
+
+5. If you're using Azure OpenAI, follow their [setup guide](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quickstart).
+
+## Configuration
+
+All configurations are defined inside the script. You need to set the following variables:
+
+- `PDF_DIR`: Path to the folder where your PDF files are located (e.g., `pdf_input`).
+- `OUTPUT_DIR`: Path to the folder where the output files (summaries or extracted emails) will be saved (e.g., `pdf_output`).
+- `OLLAMA_MODEL`: The model you want to use (default is `"phi3:latest"`).
+- `OLLAMA_ENDPOINT`: The URL for the Ollama API (default: `http://localhost:11434/api/generate`).
+- `PROCESSING_TYPE`: Choose between `"summarize"` or `"extract_emails"` to set the desired processing type.
+
+Example:
+```python
+PDF_DIR = "pdf_input"              # Directory for input PDF files
+OUTPUT_DIR = "pdf_output"          # Directory for processed output
+OLLAMA_MODEL = "phi3:latest"       # Ollama model version
+OLLAMA_ENDPOINT = "http://localhost:11434/api/generate"
+PROCESSING_TYPE = "summarize"      # Choose 'summarize' or 'extract_emails'
+```
+
+## Usage
+
+### Running the Script
+
+1. Place your PDF files inside the folder specified by the `PDF_DIR` configuration.
+
+2. Run the script with Robocorp:
+
+   ```bash
+   rcc run
+   ```
+
+The script will iterate through all the PDF files, extract the text, and either summarize it or extract email addresses, depending on the `PROCESSING_TYPE` setting.
+
+### Customizing the Script
+
+To modify the processing behavior, update the following configurations directly in the script:
+
+- To **summarize** the text, set:
+  ```python
+  PROCESSING_TYPE = "summarize"
+  ```
+
+- To **extract email addresses**, set:
+  ```python
+  PROCESSING_TYPE = "extract_emails"
+  ```
+
+### Example Output
+
+For summarization, the output will be saved as a text file with the suffix `_summary.txt`. For email extraction, the output will be saved with the suffix `_emails.txt`.
+
+## Examples
+
+### Summarization
+
+If you choose to summarize a PDF, the extracted text from each page will be processed through the Ollama model, and a concise summary will be generated.
+
+Example summary output (`_summary.txt`):
+
+```
+--- Page 1 ---
+This document provides an overview of the project...
+
+--- Page 2 ---
+In conclusion, the key points discussed include...
+```
+
+### Email Extraction
+
+If you opt to extract emails, the script will detect and list all email addresses found in the document.
+
+Example email output (`_emails.txt`):
+
+```
+email1@example.com
+contact@domain.com
+```
+
+## Limitations
+
+- **Model Size**: Large models, such as `phi3`, may require a machine with higher specs. Consider using a smaller Ollama model like `llama3.2:1b` for testing or switch to Azure OpenAI.
+- **PDF Content**: The script works best with text-based PDFs. Scanned or image-based PDFs will not yield useful results without OCR preprocessing.
+
+## Contributing
+
+Contributions are welcome! Please follow these steps to contribute:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Submit a pull request with a detailed explanation of your changes.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
